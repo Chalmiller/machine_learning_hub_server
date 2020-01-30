@@ -22,7 +22,6 @@ const db = knex({
     connection: {
         connectionString: process.env.DATABASE_URL,
         ssl: true,
-        rejectUnauthorized: false,
         }
 });
 
@@ -33,7 +32,7 @@ app.use(cors());
 
 app.get('/', (req, res) => { res.send("We've landed! :)") });
 
-app.post('/signin', (req, res) => {signin.handleSignIn(req, res, db, bcrypt)});
+app.post('/signin', (req, res) => {signin.handleSignn(req, res, db, bcrypt)});
 
 app.post('/register', (req, res) => {register.handleRegister(req, res, db, bcrypt)});
 
