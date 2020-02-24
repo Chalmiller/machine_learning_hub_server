@@ -9,39 +9,28 @@ const signin = require('./controllers/signin');
 const profile = require('./controllers/profile');
 const image = require('./controllers/image');
 
-/*
-    / --> res = this is working
-    /signin --> POST = success/fail
-    /register --> POST = user
-    /profile/:userId --> GET = user
-    /image --> PUT --> user
-*/
-
 const db = knex({
-    client: 'pg',
-    connection: {
-        connectionString: process.env.DATABASE_URL,
-        ssl: true,
-        }
+  client: 'pg',
+  connection: {
+    host : process.env.POSTGRES_HOST,
+    user : process.env.POSTGRES_USER,
+    password : process.env.POSTGRES_PASSWORD,
+    database : process.env.POSTGRES_DB
+  }
 });
 
 const app = express();
 
+app.use(cors())
 app.use(bodyParser.json());
-app.use(cors());
 
-app.get('/', (req, res) => { res.send("We've landed! :)") });
+app.get('/', (req, res)=> { res.send(db.users) })
+app.post('/signin', signin.handleSignin(db, bcrypt))
+app.post('/register', (req, res) => { register.handleRegister(req, res, db, bcrypt) })
+app.get('/profile/:id', (req, res) => { profile.handleProfileGet(req, res, db)})
+app.put('/image', (req, res) => { image.handleImage(req, res, db)})
+app.post('/imageurl', (req, res) => { image.handleApiCall(req, res)})
 
-app.post('/signin', (req, res) => {signin.handleSignn(req, res, db, bcrypt)});
-
-app.post('/register', (req, res) => {register.handleRegister(req, res, db, bcrypt)});
-
-app.get('/profile/:id', (req, res) => {profile.handleProfile(req, res, db)});
-
-app.put('/image', (req, res) => {image.handleEntries(req, res, db)});
-
-app.post('/imageurl', (req, res) => {image.handleApiCall(req, res)});
-
-app.listen(process.env.PORT || 3000, () => {
-    console.log(`App is running on port ${process.env.PORT} or 3000.`);
-});
+app.listen(3000, ()=> {
+  console.log('app is running on port 3000');
+})
